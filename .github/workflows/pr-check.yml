@@ -1,0 +1,63 @@
+name: PR Check
+
+on:
+  pull_request:
+    branches: [main, develop]
+
+jobs:
+  validate:
+    name: Validate PR
+    runs-on: ubuntu-latest
+
+    services:
+      postgres:
+        image: postgres:15
+        env:
+          POSTGRES_USER:     postgres
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB:       jobboard_test
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+      - run: npm ci
+      - name: Setup test database
+        run: psql -U postgres -h localhost -d jobboard_test -f config/schema.sql
+        env:
+          PGPASSWORD: postgres
+      - name: Run unit tests
+        run: npx jest tests/unit --runInBand --forceExit
+        env:
+          NODE_ENV:            test
+          PORT:                5001
+          PG_USER:             postgres
+          PG_HOST:             localhost
+          PG_DATABASE:         jobboard_test
+          PG_PASSWORD:         postgres
+          PG_PORT:             5432
+          JWT_ACCESS_SECRET:   ${{ secrets.JWT_ACCESS_SECRET }}
+          JWT_ACCESS_EXPIRES:  15m
+          JWT_REFRESH_SECRET:  ${{ secrets.JWT_REFRESH_SECRET }}
+          JWT_REFRESH_EXPIRES: 7d
+          EMAIL_HOST:          smtp-relay.brevo.com
+          EMAIL_PORT:          465
+          EMAIL_USER:          test@test.com
+          EMAIL_PASS:          testpass
+          EMAIL_FROM:          test@test.com
+          APP_URL:             http://localhost:5001
+          APP_NAME:            JobBoard
+          CLIENT_URL:          http://localhost:3000
+          MAX_CV_SIZE_MB:      5
+          MAX_LOGO_SIZE_MB:    2
+          UPLOADS_DIR:         uploads
+      - run: npm run lint

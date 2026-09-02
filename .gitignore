@@ -1,0 +1,10 @@
+node_modules/
+.env
+uploads/cvs/*
+uploads/logos/*
+!uploads/cvs/.gitkeep
+!uploads/logos/.gitkeep
+coverage/
+logs/
+*.log
+.DS_Store

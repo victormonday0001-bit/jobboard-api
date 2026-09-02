@@ -1,0 +1,375 @@
+{
+  "info": {
+    "name": "Job Board API",
+    "description": "Production-grade Job Board REST API\n\nSetup:\n1. Set baseUrl variable\n2. Register or login to get tokens\n3. The Login request auto-saves tokens via the test script",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    { "key": "baseUrl",      "value": "http://localhost:5000" },
+    { "key": "accessToken",  "value": "" },
+    { "key": "refreshToken", "value": "" }
+  ],
+  "item": [
+    {
+      "name": "Health",
+      "item": [
+        { "name": "Health Check", "request": { "method": "GET", "url": "{{baseUrl}}/health" } }
+      ]
+    },
+    {
+      "name": "Auth",
+      "item": [
+        {
+          "name": "Register (Jobseeker)",
+          "event": [{
+            "listen": "test",
+            "script": { "exec": [
+              "const r = pm.response.json();",
+              "if (r.tokens) {",
+              "  pm.collectionVariables.set('accessToken', r.tokens.accessToken);",
+              "  pm.collectionVariables.set('refreshToken', r.tokens.refreshToken);",
+              "}"
+            ]}
+          }],
+          "request": {
+            "method": "POST", "url": "{{baseUrl}}/api/auth/register",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": { "mode": "raw", "raw": "{\n  \"email\": \"victor@test.com\",\n  \"password\": \"Password1\",\n  \"first_name\": \"Victor\",\n  \"last_name\": \"Monday\",\n  \"role\": \"jobseeker\"\n}" }
+          }
+        },
+        {
+          "name": "Register (Employer)",
+          "event": [{
+            "listen": "test",
+            "script": { "exec": [
+              "const r = pm.response.json();",
+              "if (r.tokens) {",
+              "  pm.collectionVariables.set('accessToken', r.tokens.accessToken);",
+              "  pm.collectionVariables.set('refreshToken', r.tokens.refreshToken);",
+              "}"
+            ]}
+          }],
+          "request": {
+            "method": "POST", "url": "{{baseUrl}}/api/auth/register",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": { "mode": "raw", "raw": "{\n  \"email\": \"employer@test.com\",\n  \"password\": \"Password1\",\n  \"first_name\": \"John\",\n  \"last_name\": \"Doe\",\n  \"role\": \"employer\"\n}" }
+          }
+        },
+        {
+          "name": "Login",
+          "event": [{
+            "listen": "test",
+            "script": { "exec": [
+              "const r = pm.response.json();",
+              "if (r.tokens) {",
+              "  pm.collectionVariables.set('accessToken', r.tokens.accessToken);",
+              "  pm.collectionVariables.set('refreshToken', r.tokens.refreshToken);",
+              "  console.log('Tokens saved!');",
+              "}"
+            ]}
+          }],
+          "request": {
+            "method": "POST", "url": "{{baseUrl}}/api/auth/login",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": { "mode": "raw", "raw": "{\n  \"email\": \"victor@test.com\",\n  \"password\": \"Password1\"\n}" }
+          }
+        },
+        {
+          "name": "Get Me",
+          "request": {
+            "method": "GET", "url": "{{baseUrl}}/api/auth/me",
+            "auth": { "type": "bearer", "bearer": [{ "key": "token", "value": "{{accessToken}}" }] }
+          }
+        },
+        {
+          "name": "Refresh Token",
+          "request": {
+            "method": "POST", "url": "{{baseUrl}}/api/auth/refresh-token",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": { "mode": "raw", "raw": "{\n  \"refresh_token\": \"{{refreshToken}}\"\n}" }
+          }
+        },
+        {
+          "name": "Logout",
+          "request": {
+            "method": "POST", "url": "{{baseUrl}}/api/auth/logout",
+            "auth": { "type": "bearer", "bearer": [{ "key": "token", "value": "{{accessToken}}" }] },
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": { "mode": "raw", "raw": "{\n  \"refresh_token\": \"{{refreshToken}}\"\n}" }
+          }
+        },
+        {
+          "name": "Forgot Password",
+          "request": {
+            "method": "POST", "url": "{{baseUrl}}/api/auth/forgot-password",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": { "mode": "raw", "raw": "{\n  \"email\": \"victor@test.com\"\n}" }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Companies",
+      "item": [
+        {
+          "name": "Get All Companies",
+          "request": { "method": "GET", "url": "{{baseUrl}}/api/companies" }
+        },
+        {
+          "name": "Search Companies",
+          "request": { "method": "GET", "url": "{{baseUrl}}/api/companies?search=tech&industry=Technology" }
+        },
+        {
+          "name": "Get Company by Slug",
+          "request": { "method": "GET", "url": "{{baseUrl}}/api/companies/tech-lagos" }
+        },
+        {
+          "name": "Create Company (Employer)",
+          "request": {
+            "method": "POST", "url": "{{baseUrl}}/api/companies",
+            "auth": { "type": "bearer", "bearer": [{ "key": "token", "value": "{{accessToken}}" }] },
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                { "key": "name",     "value": "Tech Lagos" },
+                { "key": "industry", "value": "Technology" },
+                { "key": "location", "value": "Lagos, Nigeria" },
+                { "key": "country",  "value": "Nigeria" },
+                { "key": "size",     "value": "11-50" }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Get My Company",
+          "request": {
+            "method": "GET", "url": "{{baseUrl}}/api/companies/me",
+            "auth": { "type": "bearer", "bearer": [{ "key": "token", "value": "{{accessToken}}" }] }
+          }
+        },
+        {
+          "name": "Update Company",
+          "request": {
+            "method": "PUT", "url": "{{baseUrl}}/api/companies",
+            "auth": { "type": "bearer", "bearer": [{ "key": "token", "value": "{{accessToken}}" }] },
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                { "key": "name",        "value": "Tech Lagos Updated" },
+                { "key": "description", "value": "We build amazing software" }
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Jobs",
+      "item": [
+        {
+          "name": "Get All Jobs",
+          "request": { "method": "GET", "url": "{{baseUrl}}/api/jobs" }
+        },
+        {
+          "name": "Search Jobs",
+          "request": { "method": "GET", "url": "{{baseUrl}}/api/jobs?search=nodejs&type=full-time&experience_level=mid" }
+        },
+        {
+          "name": "Get Remote Jobs",
+          "request": { "method": "GET", "url": "{{baseUrl}}/api/jobs?is_remote=true&sort=salary" }
+        },
+        {
+          "name": "Get Job by Slug",
+          "request": { "method": "GET", "url": "{{baseUrl}}/api/jobs/backend-developer" }
+        },
+        {
+          "name": "Get Skills List",
+          "request": { "method": "GET", "url": "{{baseUrl}}/api/jobs/skills" }
+        },
+        {
+          "name": "Create Job (Employer)",
+          "request": {
+            "method": "POST", "url": "{{baseUrl}}/api/jobs",
+            "auth": { "type": "bearer", "bearer": [{ "key": "token", "value": "{{accessToken}}" }] },
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": { "mode": "raw", "raw": "{\n  \"title\": \"Backend Developer\",\n  \"description\": \"We need a Node.js developer with PostgreSQL experience.\",\n  \"requirements\": \"3+ years Node.js\",\n  \"type\": \"full-time\",\n  \"experience_level\": \"mid\",\n  \"location\": \"Lagos, Nigeria\",\n  \"is_remote\": false,\n  \"salary_min\": 50000,\n  \"salary_max\": 80000,\n  \"salary_currency\": \"USD\",\n  \"status\": \"published\"\n}" }
+          }
+        },
+        {
+          "name": "Get My Jobs (Employer)",
+          "request": {
+            "method": "GET", "url": "{{baseUrl}}/api/jobs/me",
+            "auth": { "type": "bearer", "bearer": [{ "key": "token", "value": "{{accessToken}}" }] }
+          }
+        },
+        {
+          "name": "Update Job",
+          "request": {
+            "method": "PUT", "url": "{{baseUrl}}/api/jobs/backend-developer",
+            "auth": { "type": "bearer", "bearer": [{ "key": "token", "value": "{{accessToken}}" }] },
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": { "mode": "raw", "raw": "{\n  \"title\": \"Senior Backend Developer\",\n  \"salary_min\": 80000,\n  \"salary_max\": 120000\n}" }
+          }
+        },
+        {
+          "name": "Close Job",
+          "request": {
+            "method": "PATCH", "url": "{{baseUrl}}/api/jobs/backend-developer/close",
+            "auth": { "type": "bearer", "bearer": [{ "key": "token", "value": "{{accessToken}}" }] }
+          }
+        },
+        {
+          "name": "Save Job (Jobseeker)",
+          "request": {
+            "method": "POST", "url": "{{baseUrl}}/api/jobs/backend-developer/save",
+            "auth": { "type": "bearer", "bearer": [{ "key": "token", "value": "{{accessToken}}" }] }
+          }
+        },
+        {
+          "name": "Get Saved Jobs",
+          "request": {
+            "method": "GET", "url": "{{baseUrl}}/api/jobs/saved",
+            "auth": { "type": "bearer", "bearer": [{ "key": "token", "value": "{{accessToken}}" }] }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Applications",
+      "item": [
+        {
+          "name": "Update Profile",
+          "request": {
+            "method": "PUT", "url": "{{baseUrl}}/api/applications/profile",
+            "auth": { "type": "bearer", "bearer": [{ "key": "token", "value": "{{accessToken}}" }] },
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                { "key": "headline",         "value": "Backend Developer" },
+                { "key": "location",         "value": "Lagos, Nigeria" },
+                { "key": "years_experience", "value": "2" },
+                { "key": "is_open_to_work",  "value": "true" },
+                { "key": "linkedin",         "value": "https://linkedin.com/in/victormonday" },
+                { "key": "github",           "value": "https://github.com/victormonday" },
+                { "key": "cv", "type": "file", "src": "" }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Apply to Job",
+          "request": {
+            "method": "POST", "url": "{{baseUrl}}/api/applications/jobs/backend-developer/apply",
+            "auth": { "type": "bearer", "bearer": [{ "key": "token", "value": "{{accessToken}}" }] },
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                { "key": "cover_letter", "value": "I am very interested in this position." }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Get My Applications",
+          "request": {
+            "method": "GET", "url": "{{baseUrl}}/api/applications/my",
+            "auth": { "type": "bearer", "bearer": [{ "key": "token", "value": "{{accessToken}}" }] }
+          }
+        },
+        {
+          "name": "Get Job Applications (Employer)",
+          "request": {
+            "method": "GET", "url": "{{baseUrl}}/api/applications/jobs/backend-developer",
+            "auth": { "type": "bearer", "bearer": [{ "key": "token", "value": "{{accessToken}}" }] }
+          }
+        },
+        {
+          "name": "Update Application Status (Employer)",
+          "request": {
+            "method": "PATCH", "url": "{{baseUrl}}/api/applications/1/status",
+            "auth": { "type": "bearer", "bearer": [{ "key": "token", "value": "{{accessToken}}" }] },
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": { "mode": "raw", "raw": "{\n  \"status\": \"shortlisted\",\n  \"employer_notes\": \"Strong candidate\"\n}" }
+          }
+        },
+        {
+          "name": "Withdraw Application",
+          "request": {
+            "method": "PATCH", "url": "{{baseUrl}}/api/applications/1/withdraw",
+            "auth": { "type": "bearer", "bearer": [{ "key": "token", "value": "{{accessToken}}" }] }
+          }
+        },
+        {
+          "name": "Get Notifications",
+          "request": {
+            "method": "GET", "url": "{{baseUrl}}/api/applications/notifications",
+            "auth": { "type": "bearer", "bearer": [{ "key": "token", "value": "{{accessToken}}" }] }
+          }
+        },
+        {
+          "name": "Mark Notifications Read",
+          "request": {
+            "method": "PATCH", "url": "{{baseUrl}}/api/applications/notifications/read",
+            "auth": { "type": "bearer", "bearer": [{ "key": "token", "value": "{{accessToken}}" }] }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Admin",
+      "item": [
+        {
+          "name": "Get Stats",
+          "request": {
+            "method": "GET", "url": "{{baseUrl}}/api/admin/stats",
+            "auth": { "type": "bearer", "bearer": [{ "key": "token", "value": "{{accessToken}}" }] }
+          }
+        },
+        {
+          "name": "Get All Users",
+          "request": {
+            "method": "GET", "url": "{{baseUrl}}/api/admin/users",
+            "auth": { "type": "bearer", "bearer": [{ "key": "token", "value": "{{accessToken}}" }] }
+          }
+        },
+        {
+          "name": "Update User",
+          "request": {
+            "method": "PATCH", "url": "{{baseUrl}}/api/admin/users/2",
+            "auth": { "type": "bearer", "bearer": [{ "key": "token", "value": "{{accessToken}}" }] },
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": { "mode": "raw", "raw": "{\n  \"is_verified\": true\n}" }
+          }
+        },
+        {
+          "name": "Get All Jobs",
+          "request": {
+            "method": "GET", "url": "{{baseUrl}}/api/admin/jobs",
+            "auth": { "type": "bearer", "bearer": [{ "key": "token", "value": "{{accessToken}}" }] }
+          }
+        },
+        {
+          "name": "Toggle Featured Job",
+          "request": {
+            "method": "PATCH", "url": "{{baseUrl}}/api/admin/jobs/1/featured",
+            "auth": { "type": "bearer", "bearer": [{ "key": "token", "value": "{{accessToken}}" }] }
+          }
+        },
+        {
+          "name": "Get All Companies",
+          "request": {
+            "method": "GET", "url": "{{baseUrl}}/api/admin/companies",
+            "auth": { "type": "bearer", "bearer": [{ "key": "token", "value": "{{accessToken}}" }] }
+          }
+        },
+        {
+          "name": "Get Audit Logs",
+          "request": {
+            "method": "GET", "url": "{{baseUrl}}/api/admin/audit-logs",
+            "auth": { "type": "bearer", "bearer": [{ "key": "token", "value": "{{accessToken}}" }] }
+          }
+        }
+      ]
+    }
+  ]
+}
