@@ -211,8 +211,6 @@ npm run test:coverage
 
 ---
 
-## Author
-
 ## Email Configuration Note
 
 Email notifications require SMTP access on ports 465/587.
@@ -222,6 +220,10 @@ On Render's free tier these ports are restricted.
 Starter plan which removes SMTP port restrictions.
 
 Local development: emails work fully with Brevo SMTP credentials.
+
+
+## Author
+
 
 **Victor Monday** — Backend Developer
 - GitHub: [@victormonday0001-bit](https://github.com/victormonday0001-bit)
