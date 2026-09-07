@@ -1,22 +1,3 @@
-// ═══════════════════════════════════════════════════════════════
-// EMAIL SERVICE — Brevo HTTP API (not SMTP)
-//
-// WHY THIS CHANGED:
-// Render, Railway, and most free-tier cloud platforms block
-// outbound SMTP ports (25, 465, 587) to prevent spam abuse.
-// This is a platform-level firewall rule — no amount of correct
-// SMTP configuration can bypass it on free plans.
-//
-// THE FIX:
-// Brevo (like SendGrid, Mailgun, Postmark, Resend) offers a
-// regular HTTPS REST API for sending email. HTTPS on port 443
-// is NEVER blocked by any cloud platform — it's the same port
-// used for all normal web traffic. This is the industry-standard
-// solution and works identically on free or paid hosting tiers.
-//
-// This uses the SAME Brevo account and API key mechanism —
-// no new signup needed. Just a different way of talking to Brevo.
-// ═══════════════════════════════════════════════════════════════
 
 const axios  = require('axios');
 const logger = require('../utils/logger');
